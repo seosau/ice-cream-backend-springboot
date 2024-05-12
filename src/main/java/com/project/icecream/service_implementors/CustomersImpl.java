@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 //@Component
 @Service
-public class CustomersService implements UsersService {
+public class CustomersImpl implements UsersService {
 
     @Autowired
     private CustomerDAO customerDAO;
@@ -29,7 +29,7 @@ public class CustomersService implements UsersService {
     public void saveUser(Users user) {
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
-        Customers customers = (Customers) user;
+        Customers customers = new Customers(user);
         customerDAO.save(customers);
     }
 
