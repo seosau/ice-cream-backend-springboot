@@ -1,8 +1,8 @@
 package com.project.icecream.service_implementors;
 
-import com.project.icecream.models.Admins;
 import com.project.icecream.models.Users;
-import com.project.icecream.repositories.AdminDAO;
+import com.project.icecream.models.Users;
+import com.project.icecream.repositories.UserDAO;
 import com.project.icecream.services.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,35 +12,32 @@ import java.util.ArrayList;
 import java.util.List;
 //@Component
 @Service
-public class AdminsImpl implements UsersService {
+public class UsersImpl implements UsersService {
 
     @Autowired
-    private AdminDAO adminDAO;
+    private UserDAO userDAO;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Override
     public List<Users> getAllUser() {
-        List<Admins> adminsList = adminDAO.findAll();
-        List<Users> usersList = new ArrayList<>(adminsList);
-        return usersList;
+        return userDAO.findAll();
     }
 
     @Override
     public void saveUser(Users user) {
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
-        Admins admins = new Admins(user);
-        adminDAO.save(admins);
+        userDAO.save(user);
     }
 
     @Override
     public boolean isEmailRegistered(String email) {
-        return adminDAO.findByEmail(email) != null;
+        return userDAO.findByEmail(email) != null;
     }
 
     @Override
     public Users isEmailAndPasswordCorrect(String email, String enteredPassword) {
-        Admins storedUser = adminDAO.findByEmail(email);
+        Users storedUser = userDAO.findByEmail(email);
         if (storedUser != null && authenticate(enteredPassword, storedUser.getPassword())){
             return storedUser;
         }
