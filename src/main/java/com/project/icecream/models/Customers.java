@@ -2,13 +2,13 @@ package com.project.icecream.models;
 
 import jakarta.persistence.*;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "users")
+@Builder
 public class Customers extends Users {
     public Customers (){}
     public Customers (Users user){

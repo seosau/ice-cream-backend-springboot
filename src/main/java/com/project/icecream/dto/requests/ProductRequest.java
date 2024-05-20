@@ -14,11 +14,9 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 public class ProductRequest {
-    @JsonProperty("seller_id")
     private int sellerId;
     private String name;
     private double price;
-    @JsonProperty("product_detail")
     private String productDetail;
     private String category;
     private int stock;

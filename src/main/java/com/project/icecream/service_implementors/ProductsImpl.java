@@ -1,6 +1,7 @@
 package com.project.icecream.service_implementors;
 
 import com.project.icecream.dto.requests.ProductRequest;
+import com.project.icecream.models.Orders;
 import com.project.icecream.models.Products;
 import com.project.icecream.repositories.ProductsDAO;
 import com.project.icecream.services.ProductsService;
@@ -41,6 +42,7 @@ public class ProductsImpl implements ProductsService {
         // Lưu sản phẩm vào cơ sở dữ liệu
         return productsDAO.save(product);
     }
+
     public Page<Products> getAllProducts(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Products> productsPage = productsDAO.findAll(pageable);
@@ -59,57 +61,58 @@ public class ProductsImpl implements ProductsService {
         if ("loại".equalsIgnoreCase(sortBy)) {
             pageable = PageRequest.of(page - 1, 12);
             productsPageFilter = productsDAO.findByCategory(order, pageable);
-        }
-        else if ("bestsale".equalsIgnoreCase(sortBy)) {
-            pageable = PageRequest.of(page - 1, 12, Sort.by(Sort.Direction.DESC,"stock"));
+        } else if ("bestsale".equalsIgnoreCase(sortBy)) {
+            pageable = PageRequest.of(page - 1, 12, Sort.by(Sort.Direction.DESC, "stock"));
             productsPageFilter = productsDAO.findAll(pageable);
-        }
-        else if ("newest".equalsIgnoreCase(sortBy)) {
-            pageable = PageRequest.of(page - 1, 12, Sort.by(Sort.Direction.DESC,"updatedAt"));
+        } else if ("newest".equalsIgnoreCase(sortBy)) {
+            pageable = PageRequest.of(page - 1, 12, Sort.by(Sort.Direction.DESC, "updatedAt"));
             productsPageFilter = productsDAO.findAll(pageable);
-        }
-        else {
+        } else if ("giá".equalsIgnoreCase(sortBy)) {
             Sort.Direction sortDirection = "desc".equalsIgnoreCase(order) || "ctime".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
             pageable = PageRequest.of(page - 1, 12, Sort.by(sortDirection, "price"));
+            productsPageFilter = productsDAO.findAll(pageable);
+        } else if ("trạng thái".equalsIgnoreCase(sortBy)) {
+            pageable = PageRequest.of(page - 1, 12);
+            productsPageFilter = productsDAO.findByStatus(order, pageable);
+        } else {
+            pageable = PageRequest.of(page - 1, 12, Sort.by(Sort.Direction.ASC, "id"));
             productsPageFilter = productsDAO.findAll(pageable);
         }
 
         for (Products product : productsPageFilter) {
-            String imagePath = product.getImage();
-            if (imagePath != null && !imagePath.isEmpty()) {
-                File file = new File(imagePath);
-                String fileName = file.getName();
-                String imageUrl = "http://localhost:8080/api/" + fileName;
-                product.setImage(imageUrl);
-            }
+            String imageUrl = "http://localhost:8080/api/" + product.getImage();
+            product.setImage(imageUrl);
         }
         return productsPageFilter;
     }
 
 
-
     public Optional<Products> getProductById(int id) {
-        return productsDAO.findById(id);
+        Optional<Products> product = productsDAO.findById(id);
+        product.ifPresent(p -> p.setImage("http://localhost:8080/api/" + p.getImage()));
+        return product;
     }
 
     public Products updateProduct(int id, ProductRequest requestBody) throws IOException {
-        LocalDateTime currentTime = LocalDateTime.now(); // Lấy thời gian hiện tại
-        if (productsDAO.existsById(id)) {
-            Products product = Products.builder()
-                    .sellerId(requestBody.getSellerId())
-                    .name(requestBody.getName())
-                    .price(requestBody.getPrice())
-                    .category(requestBody.getCategory())
-                    .productDetail(requestBody.getProductDetail())
-                    .stock(requestBody.getStock())
-                    .status(requestBody.getStatus())
-                    .image(saveBase64ImageToFile(requestBody.getImage(), convertToSlug(requestBody.getName())))
-                    .updatedAt(currentTime)
-                    .build();
+        Optional<Products> optionalProduct = productsDAO.findById(id);
+        System.out.println(requestBody);
+        LocalDateTime currentTime = LocalDateTime.now();
+        if (optionalProduct.isPresent()) {
+            Products product = optionalProduct.get();
+            product.setName(requestBody.getName());
+            product.setCategory(requestBody.getCategory());
+            product.setStatus(requestBody.getStatus());
+            product.setImage(saveBase64ImageToFile(requestBody.getImage(), convertToSlug(requestBody.getName())));
+            product.setStock(requestBody.getStock());
+            product.setPrice(requestBody.getPrice());
+            product.setSellerId(requestBody.getSellerId());
+            product.setProductDetail(requestBody.getProductDetail());
+            product.setUpdatedAt(currentTime);
             return productsDAO.save(product);
         }
         return null;
     }
+
     public void deleteProduct(int id) {
         productsDAO.deleteById(id);
     }

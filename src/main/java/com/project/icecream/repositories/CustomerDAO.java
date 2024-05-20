@@ -5,7 +5,7 @@ import com.project.icecream.models.Customers;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CustomerDAO extends JpaRepository<Customers, Long>  {
+public interface CustomerDAO extends JpaRepository<Customers, Integer>  {
     Customers findByEmail(String email);
     Customers findByEmailAndPassword(String email, String password);
 }

@@ -1,6 +1,7 @@
 package com.project.icecream.controllers;
 
 import com.project.icecream.dto.UserLoginResponse;
+import com.project.icecream.dto.responses.UsersResponse;
 import com.project.icecream.models.Users;
 //import com.project.icecream.service_implementors.CustomersService;
 import com.project.icecream.service_implementors.AdminsImpl;
@@ -24,9 +25,23 @@ public class UsersController {
     @Autowired
     private AdminsImpl adminsService;
 
-    @GetMapping("")
+    @GetMapping({""})
     public ResponseEntity<?> getListUser(){
         List<Users> users = customersService.getAllUser();
+//        List<Users> users = new ArrayList<>();
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping({"/admin/useraccount"})
+    public ResponseEntity<?> getListUserByAdmin(){
+        List<UsersResponse> users = customersService.getAllUserByAdmin();
+//        List<Users> users = new ArrayList<>();
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping({"/admin/staffaccount"})
+    public ResponseEntity<?> getListSellerByAdmin(){
+        List<UsersResponse> users = sellersService.getAllSellerByAdmin();
 //        List<Users> users = new ArrayList<>();
         return ResponseEntity.ok(users);
     }
@@ -189,4 +204,6 @@ public class UsersController {
 //        SecurityContextHolder.clearContext();
         return ResponseEntity.ok().build();
     }
+
+
 }
