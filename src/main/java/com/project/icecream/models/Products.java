@@ -1,25 +1,25 @@
 package com.project.icecream.models;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 @Getter
 @Entity
 @Table(name = "products")
 @Data
-
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Products {
     @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
     @Setter
     @Column(name = "seller_id")
-    private int seller_id;
+    private int sellerId;
     @Setter
     @Column(name = "name")
     private String name;
@@ -37,41 +37,27 @@ public class Products {
     private int stock;
     @Setter
     @Column(name = "product_detail")
-    private String product_detail;
+    private String productDetail;
     @Setter
     @Column(name = "status")
     private String status;
     @Setter
     @Column(name = "created_at")
-    private Date created_at;
+    private LocalDateTime createdAt;
     @Setter
     @Column(name = "updated_at")
-    private Date updated_at;
+    private LocalDateTime updatedAt;
 
-    public Products() {
-        this.seller_id = 0;
-        this.name = "";
-        this.price = 0;
-        this.category = "";
-        this.image = "";
-        this.stock = 0;
-        this.product_detail = "";
-        this.status = "";
-        this.created_at = null;
-        this.updated_at = null;
-    }
-
-    public Products(int seller_id, String name, double price, String category, String image, int stock, String product_detail, String status, Date created_at, Date updated_at) {
-        this.seller_id = seller_id;
+    public Products(int sellerId, String name, double price, String category, String image, int stock, String productDetail, String status, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.sellerId = sellerId;
         this.name = name;
         this.price = price;
         this.category = category;
         this.image = image;
         this.stock = stock;
-        this.product_detail = product_detail;
+        this.productDetail = productDetail;
         this.status = status;
-        this.created_at = created_at;
-        this.updated_at = updated_at;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
-
 }

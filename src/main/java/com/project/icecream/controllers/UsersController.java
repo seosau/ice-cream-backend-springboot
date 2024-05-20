@@ -69,6 +69,7 @@ public class UsersController {
             if (usersService.isEmailRegistered(user.getEmail())) {
                 return ResponseEntity.badRequest().body("Email này đã được đăng ký rồi");
             }
+            user.setImage("123");
             user.setUser_type("client");
             usersService.saveUser(user);
             return ResponseEntity.ok().body("Đăng ký thành công");

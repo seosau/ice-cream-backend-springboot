@@ -1,8 +1,12 @@
 package com.project.icecream.controllers;
 
+import com.project.icecream.dto.requests.ProductRequest;
+import com.project.icecream.dto.responses.ProductResponse;
 import com.project.icecream.models.Products;
+import com.project.icecream.service_implementors.ProductsImpl;
 import com.project.icecream.services.ProductsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,59 +16,35 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
 @RequestMapping
 public class ProductsController {
     @Autowired
-    private ProductsService productsService;
+    private ProductsImpl productsService;
 
     @GetMapping("/menu")
-    public ResponseEntity<List<Products>> getAllProducts() {
-        List<Products> products = productsService.getAllProducts();
-        return new ResponseEntity<>(products, HttpStatus.OK);
+    public ResponseEntity<?> getAllProducts(@RequestParam(value = "page", defaultValue = "1") int page) {
+        Page<Products> products = productsService.getAllProducts(page, 12);
+        return ResponseEntity.ok(products);
     }
 
-    @PostMapping("/product/add")
-    public ResponseEntity<?> addProduct(@RequestParam("name") String name,
-                               @RequestParam("price") double price,
-                               @RequestParam("product_detail") String product_detail,
-                               @RequestParam("category") String category,
-                               @RequestParam("stock") int stock,
-                               @RequestParam("status") String status,
-                               @RequestParam("image") MultipartFile image) throws IOException {
-        Products product = new Products();
-        product.setSeller_id(1);
-        product.setName(name);
-        product.setPrice(price);
-        product.setCategory(category);
-        product.setProduct_detail(product_detail);
-        product.setStock(stock);
-        product.setStatus(status);
-        String imagePath = saveImageToFileSystem(image);
-        product.setImage(imagePath);
-
-
-        // Gọi phương thức addProduct của productService để thêm sản phẩm và hình ảnh
-        return new ResponseEntity<>(product, HttpStatus.OK);
+    @GetMapping("/viewproduct")
+    public ResponseEntity<?> getFilterProducts(@RequestParam(value = "page") int page, @RequestParam(value = "sortBy") String sortBy, @RequestParam(value = "order") String order) {
+        Page<Products> products = productsService.getFilterProducts(page, sortBy, order);
+        return ResponseEntity.ok(products);
     }
 
-    public String saveImageToFileSystem(MultipartFile image) throws IOException {
-        final Path CURRENT_FOLDER = Paths.get(System.getProperty("user.dir"));
-        Path staticPath = Paths.get("src/main/resources/static");
-        Path imagePath = Paths.get("images");
-        if (!Files.exists(CURRENT_FOLDER.resolve(staticPath).resolve(imagePath))) {
-            Files.createDirectories(CURRENT_FOLDER.resolve(staticPath).resolve(imagePath));
-        }
-        Path file = CURRENT_FOLDER.resolve(staticPath).resolve(imagePath).resolve(image.getOriginalFilename());
-        try (OutputStream os = Files.newOutputStream(file)) {
-            os.write(image.getBytes());
-        }
-
-        // Trả về đường dẫn của tệp ảnh đã lưu
-        return imagePath.resolve(image.getOriginalFilename()).toString();
+    @PostMapping("/seller/product")
+    public ResponseEntity<?> addProduct(@RequestBody ProductRequest requestBody) throws IOException {
+        // Lưu sản phẩm vào hệ thống
+        Products product = productsService.addProduct(requestBody);
+        ProductResponse response = ProductResponse.builder()
+                .message("Them san pham thanh cong")
+                .build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
 }
 
