@@ -1,6 +1,6 @@
 package com.project.icecream.controllers;
 
-import com.project.icecream.dto.UserLoginResponse;
+import com.project.icecream.dto.responses.UserLoginResponse;
 import com.project.icecream.enums.Role;
 import com.project.icecream.models.Users;
 import com.project.icecream.service_implementors.UsersImpl;
@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import  java.util.List;
 
