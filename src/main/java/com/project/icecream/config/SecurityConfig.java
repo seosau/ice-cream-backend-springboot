@@ -44,6 +44,7 @@ public class SecurityConfig {
             "/seller/login",
             "/",
             "/product/add",
+            "/**"
     };
 
     private final String[] CLIENT_ENDPOINTS = {
@@ -57,20 +58,6 @@ public class SecurityConfig {
 //            "/",
             "/admin/logout",
     };
-
-//    @Bean
-//    @Order(Ordered.HIGHEST_PRECEDENCE)
-//    SecurityFilterChain unsecuredFilterChain(HttpSecurity httpSecurity) throws Exception {
-//        return httpSecurity
-//                .securityMatcher(new OrRequestMatcher(new AntPathRequestMatcher("/login")))
-//                .securityMatcher(new OrRequestMatcher(new AntPathRequestMatcher("/register"))) // Bị lỗi chỉ nhận cái dưới
-//                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .csrf(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> {
-//                    authorizationManagerRequestMatcherRegistry.requestMatchers("/**").permitAll();
-//                })
-//                .build();
-//    }
 
     // Cấu hình filterchian cho các public endpoints, đặt oder cao nhất
     @Bean
@@ -95,7 +82,6 @@ public class SecurityConfig {
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE + 1)
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-//        httpSecurity.cors(cors -> cors.configurationSource(corsConfigurationSource()));
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
         httpSecurity.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())
@@ -103,7 +89,6 @@ public class SecurityConfig {
         );
         httpSecurity.authorizeHttpRequests(request ->
                 request
-//                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(CLIENT_ENDPOINTS).hasRole("client")
                         .requestMatchers(SELLER_ENDPOINTS).hasRole("seller")
                         .requestMatchers(ADMIN_ENDPOINTS).hasRole("admin")
@@ -134,28 +119,4 @@ public class SecurityConfig {
                 .macAlgorithm(MacAlgorithm.HS512)
                 .build();
     }
-
-
-//      Cấu hình CORS trong spring security
-//    @Bean
-//    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        CorsConfiguration config = new CorsConfiguration();
-//        config.setAllowCredentials(true);
-//        config.addAllowedOrigin("http://localhost:3000");
-//        config.setAllowedHeaders(Arrays.asList(
-//                HttpHeaders.AUTHORIZATION,
-//                HttpHeaders.CONTENT_TYPE,
-//                HttpHeaders.ACCEPT
-//        ));
-//        config.setAllowedMethods(Arrays.asList(
-//                HttpMethod.GET.name(),
-//                HttpMethod.POST.name(),
-//                HttpMethod.PUT.name(),
-//                HttpMethod.DELETE.name()
-//        ));
-//        config.setMaxAge(3600L);
-//        source.registerCorsConfiguration("/**", config);
-//        return source;
-//    }
 }
