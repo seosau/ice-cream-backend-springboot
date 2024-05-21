@@ -30,6 +30,9 @@ public class JwtTokenUtil {
     private static final String SECRET_KEY = "cH3lXJt1vPdulcO3cLjZgG9vxPHdWJuUJa7/rA6T1oJ5d6Mg5ISlqX3AOhN9yTlljZQWzoXHDa+x0VLJmdnEug==";
     private static final long EXPIRATION_TIME = 86400000;
 
+    public static String getSecretKey(){
+        return SECRET_KEY;
+    }
     public static String generateToken(Users user){
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);

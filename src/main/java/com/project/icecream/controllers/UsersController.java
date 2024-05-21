@@ -1,47 +1,44 @@
 package com.project.icecream.controllers;
 
-import com.project.icecream.dto.UserLoginResponse;
+import com.project.icecream.dto.responses.UserLoginResponse;
 import com.project.icecream.dto.responses.UsersResponse;
+import com.project.icecream.enums.Role;
 import com.project.icecream.models.Users;
-//import com.project.icecream.service_implementors.CustomersService;
-import com.project.icecream.service_implementors.AdminsImpl;
-import com.project.icecream.service_implementors.CustomersImpl;
-import com.project.icecream.service_implementors.SellersImpl;
+import com.project.icecream.service_implementors.UsersImpl;
 import com.project.icecream.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-//import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import  java.util.List;
 
+import static com.project.icecream.utils.GenerateSlugUtil.convertToSlug;
+import static com.project.icecream.utils.SaveImageBase64Util.saveBase64ImageToFile;
+
 @RestController
 public class UsersController {
+
     @Autowired
-    private CustomersImpl customersService;
-    @Autowired
-    private SellersImpl sellersService;
-    @Autowired
-    private AdminsImpl adminsService;
+    private UsersImpl usersService;
 
     @GetMapping({""})
     public ResponseEntity<?> getListUser(){
-        List<Users> users = customersService.getAllUser();
-//        List<Users> users = new ArrayList<>();
+        List<Users> users = usersService.getAllUser();
         return ResponseEntity.ok(users);
     }
 
     @GetMapping({"/admin/useraccount"})
     public ResponseEntity<?> getListUserByAdmin(){
-        List<UsersResponse> users = customersService.getAllUserByAdmin();
+        List<UsersResponse> users = usersService.getAllUserByAdmin();
 //        List<Users> users = new ArrayList<>();
         return ResponseEntity.ok(users);
     }
 
     @GetMapping({"/admin/staffaccount"})
     public ResponseEntity<?> getListSellerByAdmin(){
-        List<UsersResponse> users = sellersService.getAllSellerByAdmin();
+        List<UsersResponse> users = usersService.getAllSellerByAdmin();
 //        List<Users> users = new ArrayList<>();
         return ResponseEntity.ok(users);
     }
@@ -49,17 +46,14 @@ public class UsersController {
     @PostMapping("/login")
     public ResponseEntity<?> customerLogin(@RequestBody Users user){
         try {
-            System.out.println(user);
-            if (user.getEmail() == null || user.getEmail().isEmpty()) {
-                return ResponseEntity.badRequest().body("Email không được trống");
-            }
-            if (user.getPassword() == null || user.getPassword().isEmpty()) {
-                return ResponseEntity.badRequest().body("Mật khẩu không được trống");
-            }
-            Users loginUser = customersService.isEmailAndPasswordCorrect(user.getEmail(), user.getPassword());
+            Users loginUser = usersService.isEmailAndPasswordCorrect(user.getEmail(), user.getPassword());
             if (loginUser != null) {
-                String token = JwtTokenUtil.generateToken(loginUser);
-                return ResponseEntity.ok().body(new UserLoginResponse(loginUser, token));
+                if(loginUser.getUser_type().equals(Role.client.name())){
+                    String token = JwtTokenUtil.generateToken(loginUser);
+                    return ResponseEntity.ok().body(new UserLoginResponse(loginUser, token));
+                }
+                return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                        .body("Email hoặc mật khẩu không chính xác");
             }
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                     .body("Email hoặc mật khẩu không chính xác");
@@ -70,50 +64,36 @@ public class UsersController {
     @PostMapping("/register")
     public  ResponseEntity<?> customerRegister(@RequestBody Users user){
         try {
-            if (user.getEmail() == null || user.getEmail().isEmpty()) {
-                return ResponseEntity.badRequest().body("Email không được trống");
-            }
-            if (user.getName() == null || user.getName().isEmpty()) {
-                return ResponseEntity.badRequest().body("Tên không được trống");
-            }
-            if (user.getPassword() == null || user.getPassword().isEmpty()) {
-                return ResponseEntity.badRequest().body("Mật khẩu không được trống");
-            }
-            if (user.getImage() == null || user.getImage().isEmpty()) {
-                return ResponseEntity.badRequest().body("Ảnh không được trống");
-            }
-            if (customersService.isEmailRegistered(user.getEmail())) {
+            if (usersService.isEmailRegistered(user.getEmail())) {
                 return ResponseEntity.badRequest().body("Email này đã được đăng ký rồi");
             }
-            user.setImage("123");
-            user.setUser_type("client");
-            customersService.saveUser(user);
+            user.setImage(saveBase64ImageToFile(user.getImage(), convertToSlug(user.getEmail())));
+            user.setUser_type(Role.client.name());
+            usersService.saveUser(user);
             return ResponseEntity.ok().body("Đăng ký thành công");
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Đăng ký thất bại: " + ex.getMessage());
         }
     }
 
-    @PostMapping("/logout")
+
+    @PostMapping("/getlogout")
     public ResponseEntity<?> customerLogout() {
-//        SecurityContextHolder.clearContext();
+        SecurityContextHolder.clearContext();
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/seller/login")
     public ResponseEntity<?> sellerLogin(@RequestBody Users user){
         try {
-            System.out.println(user);
-            if (user.getEmail() == null || user.getEmail().isEmpty()) {
-                return ResponseEntity.badRequest().body("Email không được trống");
-            }
-            if (user.getPassword() == null || user.getPassword().isEmpty()) {
-                return ResponseEntity.badRequest().body("Mật khẩu không được trống");
-            }
-            Users loginUser = sellersService.isEmailAndPasswordCorrect(user.getEmail(), user.getPassword());
+            Users loginUser = usersService.isEmailAndPasswordCorrect(user.getEmail(), user.getPassword());
             if (loginUser != null) {
-                String token = JwtTokenUtil.generateToken(loginUser);
-                return ResponseEntity.ok().body(new UserLoginResponse(loginUser, token));
+                if(loginUser.getUser_type().equals(Role.seller.name())){
+                    String token = JwtTokenUtil.generateToken(loginUser);
+                    return ResponseEntity.ok().body(new UserLoginResponse(loginUser, token));
+                }
+                return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                        .body("Email hoặc mật khẩu không chính xác");
             }
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                     .body("Email hoặc mật khẩu không chính xác");
@@ -121,26 +101,15 @@ public class UsersController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi đăng nhập" + ex.getMessage());
         }
     }
-    @PostMapping("/seller/register")
+    @PostMapping("/admin/addstaff")
     public  ResponseEntity<?> sellerRegister(@RequestBody Users user){
         try {
-            if (user.getEmail() == null || user.getEmail().isEmpty()) {
-                return ResponseEntity.badRequest().body("Email không được trống");
-            }
-            if (user.getName() == null || user.getName().isEmpty()) {
-                return ResponseEntity.badRequest().body("Tên không được trống");
-            }
-            if (user.getPassword() == null || user.getPassword().isEmpty()) {
-                return ResponseEntity.badRequest().body("Mật khẩu không được trống");
-            }
-            if (user.getImage() == null || user.getImage().isEmpty()) {
-                return ResponseEntity.badRequest().body("Ảnh không được trống");
-            }
-            if (sellersService.isEmailRegistered(user.getEmail())) {
+            if (usersService.isEmailRegistered(user.getEmail())) {
                 return ResponseEntity.badRequest().body("Email này đã được đăng ký rồi");
             }
-            user.setUser_type("seller");
-            sellersService.saveUser(user);
+            user.setImage(saveBase64ImageToFile(user.getImage(), convertToSlug(user.getEmail())));
+            user.setUser_type(Role.seller.name());
+            usersService.saveUser(user);
             return ResponseEntity.ok().body("Đăng ký thành công");
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Đăng ký thất bại: " + ex.getMessage());
@@ -149,23 +118,21 @@ public class UsersController {
 
     @PostMapping("/seller/logout")
     public ResponseEntity<?> sellerLogout() {
-//        SecurityContextHolder.clearContext();
+        SecurityContextHolder.clearContext();
         return ResponseEntity.ok().build();
     }
+
     @PostMapping("/admin/login")
     public ResponseEntity<?> adminLogin(@RequestBody Users user){
         try {
-            System.out.println(user);
-            if (user.getEmail() == null || user.getEmail().isEmpty()) {
-                return ResponseEntity.badRequest().body("Email không được trống");
-            }
-            if (user.getPassword() == null || user.getPassword().isEmpty()) {
-                return ResponseEntity.badRequest().body("Mật khẩu không được trống");
-            }
-            Users loginUser = adminsService.isEmailAndPasswordCorrect(user.getEmail(), user.getPassword());
+            Users loginUser = usersService.isEmailAndPasswordCorrect(user.getEmail(), user.getPassword());
             if (loginUser != null) {
-                String token = JwtTokenUtil.generateToken(loginUser);
-                return ResponseEntity.ok().body(new UserLoginResponse(loginUser, token));
+                if(loginUser.getUser_type().equals(Role.admin.name())){
+                    String token = JwtTokenUtil.generateToken(loginUser);
+                    return ResponseEntity.ok().body(new UserLoginResponse(loginUser, token));
+                }
+                return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                        .body("Email hoặc mật khẩu không chính xác");
             }
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                     .body("Email hoặc mật khẩu không chính xác");
@@ -176,23 +143,12 @@ public class UsersController {
     @PostMapping("/admin/register")
     public  ResponseEntity<?> adminRegister(@RequestBody Users user){
         try {
-            if (user.getEmail() == null || user.getEmail().isEmpty()) {
-                return ResponseEntity.badRequest().body("Email không được trống");
-            }
-            if (user.getName() == null || user.getName().isEmpty()) {
-                return ResponseEntity.badRequest().body("Tên không được trống");
-            }
-            if (user.getPassword() == null || user.getPassword().isEmpty()) {
-                return ResponseEntity.badRequest().body("Mật khẩu không được trống");
-            }
-            if (user.getImage() == null || user.getImage().isEmpty()) {
-                return ResponseEntity.badRequest().body("Ảnh không được trống");
-            }
-            if (adminsService.isEmailRegistered(user.getEmail())) {
+            if (usersService.isEmailRegistered(user.getEmail())) {
                 return ResponseEntity.badRequest().body("Email này đã được đăng ký rồi");
             }
-            user.setUser_type("admin");
-            adminsService.saveUser(user);
+            user.setImage(saveBase64ImageToFile(user.getImage(), convertToSlug(user.getEmail())));
+            user.setUser_type(Role.admin.name());
+            usersService.saveUser(user);
             return ResponseEntity.ok().body("Đăng ký thành công");
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Đăng ký thất bại: " + ex.getMessage());
@@ -201,9 +157,7 @@ public class UsersController {
 
     @PostMapping("/admin/logout")
     public ResponseEntity<?> adminLogout() {
-//        SecurityContextHolder.clearContext();
+        SecurityContextHolder.clearContext();
         return ResponseEntity.ok().build();
     }
-
-
 }

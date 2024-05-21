@@ -15,9 +15,7 @@ public class DashboardImpl implements DashboardService {
     @Autowired
     private ProductsDAO productsDAO;
     @Autowired
-    private CustomerDAO customerDAO;
-    @Autowired
-    private SellerDAO sellerDAO;
+    private UserDAO userDAO;
     @Autowired
     private MessagesDAO messagesDAO;
     @Autowired
@@ -35,10 +33,10 @@ public class DashboardImpl implements DashboardService {
         return productsDAO.countByStatus("inactive");
     }
     public long getTotalUserAccounts() {
-        return customerDAO.count();
+        return userDAO.count();
     }
     public long getTotalSellerAccounts() {
-        return sellerDAO.count();
+        return userDAO.count();
     }
     public long getTotalOrderPlaced() {
         return ordersDAO.count();

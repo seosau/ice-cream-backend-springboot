@@ -2,11 +2,11 @@ package com.project.icecream.service_implementors;
 
 import com.project.icecream.dto.requests.OrdersRequest;
 import com.project.icecream.dto.responses.OrdersResponse;
-import com.project.icecream.models.Customers;
+import com.project.icecream.models.Users;
 import com.project.icecream.models.Orders;
 import com.project.icecream.models.Products;
 import com.project.icecream.models.Users;
-import com.project.icecream.repositories.CustomerDAO;
+import com.project.icecream.repositories.UserDAO;
 import com.project.icecream.repositories.OrdersDAO;
 import com.project.icecream.repositories.ProductsDAO;
 import com.project.icecream.services.OrdersService;
@@ -27,7 +27,7 @@ public class OrdersImpl implements OrdersService {
     private ProductsDAO productsDAO;
 
     @Autowired
-    private CustomerDAO customerDAO;
+    private UserDAO userDAO;
 
     public List<OrdersResponse> getOrders(String status, String paymentStatus) {
         List<Orders> orders = null;
@@ -40,10 +40,10 @@ public class OrdersImpl implements OrdersService {
 
         for (Orders order : orders) {
             Optional<Products> productOptional = productsDAO.findById(order.getProductId());
-            Optional<Customers> userOptional = customerDAO.findById(order.getUserId());
+            Optional<Users> userOptional = userDAO.findById(order.getUserId());
 
             String productName = productOptional.map(Products::getName).orElse("Unknown");
-            String userName = userOptional.map(Customers::getName).orElse("Unknown");
+            String userName = userOptional.map(Users::getName).orElse("Unknown");
 
             ordersResponses.add(OrdersResponse.builder()
                     .id(order.getId())

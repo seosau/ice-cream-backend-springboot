@@ -1,4 +1,4 @@
-package com.project.icecream.dto;
+package com.project.icecream.dto.responses;
 
 import com.project.icecream.models.Users;
 import lombok.Getter;

@@ -1,42 +1,52 @@
 package com.project.icecream.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
 
 @Setter
 @Getter
-//@Entity
-@MappedSuperclass
-//@Table(name = "users")
+@Entity
+@NoArgsConstructor
+@AllArgsConstructor
+//@MappedSuperclass
+@Table(name = "users")
 public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected int id;
-    protected String name;
-    protected String email;
-    protected String password;
-    protected String image;
-    protected String user_type;
+    private int id;
+    private String name;
+    private String email;
+    private String password;
+    private String image;
+    private String user_type;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", nullable = false, updatable = false)
-    protected Date created_at;
+    private Date created_at;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at", nullable = false)
-    protected Date updated_at;
+    private Date updated_at;
+
+    public Users (String name, String email, String password) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+    }
 
     @PrePersist
-    protected void onCreate() {
+    private void onCreate() {
         created_at = new Date();
         updated_at = new Date();
     }
 
     @PreUpdate
-    protected void onUpdate() {
+    private void onUpdate() {
         updated_at = new Date();
     }
 }
