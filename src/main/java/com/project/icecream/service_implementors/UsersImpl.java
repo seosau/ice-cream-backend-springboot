@@ -42,6 +42,7 @@ public class UsersImpl implements UsersService {
     public Users isEmailAndPasswordCorrect(String email, String enteredPassword) {
         Users storedUser = userDAO.findByEmail(email);
         if (storedUser != null && authenticate(enteredPassword, storedUser.getPassword())){
+            storedUser.setImage("http://localhost:8080/api/" + storedUser.getImage());
             return storedUser;
         }
         return null;
