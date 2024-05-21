@@ -5,7 +5,7 @@ import com.project.icecream.models.Users;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserDAO extends JpaRepository<Users, Long>  {
+public interface UserDAO extends JpaRepository<Users, Integer>  {
     Users findByEmail(String email);
     Users findByEmailAndPassword(String email, String password);
 }

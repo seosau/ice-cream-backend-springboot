@@ -1,6 +1,7 @@
 package com.project.icecream.controllers;
 
 import com.project.icecream.dto.responses.UserLoginResponse;
+import com.project.icecream.dto.responses.UsersResponse;
 import com.project.icecream.enums.Role;
 import com.project.icecream.models.Users;
 import com.project.icecream.service_implementors.UsersImpl;
@@ -22,9 +23,23 @@ public class UsersController {
     @Autowired
     private UsersImpl usersService;
 
-    @GetMapping("")
+    @GetMapping({""})
     public ResponseEntity<?> getListUser(){
         List<Users> users = usersService.getAllUser();
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping({"/admin/useraccount"})
+    public ResponseEntity<?> getListUserByAdmin(){
+        List<UsersResponse> users = usersService.getAllUserByAdmin();
+//        List<Users> users = new ArrayList<>();
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping({"/admin/staffaccount"})
+    public ResponseEntity<?> getListSellerByAdmin(){
+        List<UsersResponse> users = usersService.getAllSellerByAdmin();
+//        List<Users> users = new ArrayList<>();
         return ResponseEntity.ok(users);
     }
 
@@ -86,7 +101,7 @@ public class UsersController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi đăng nhập" + ex.getMessage());
         }
     }
-    @PostMapping("/seller/register")
+    @PostMapping("/admin/addstaff")
     public  ResponseEntity<?> sellerRegister(@RequestBody Users user){
         try {
             if (usersService.isEmailRegistered(user.getEmail())) {
