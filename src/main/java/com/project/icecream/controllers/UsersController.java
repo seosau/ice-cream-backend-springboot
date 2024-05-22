@@ -1,5 +1,7 @@
 package com.project.icecream.controllers;
 
+import com.project.icecream.dto.requests.UserInfoRequest;
+import com.project.icecream.dto.responses.UserInfoResponse;
 import com.project.icecream.dto.responses.UserLoginResponse;
 import com.project.icecream.dto.responses.UsersResponse;
 import com.project.icecream.enums.Role;
@@ -14,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 
 import  java.util.List;
 
+import static com.project.icecream.utils.AddHostUrl.addHostUrlForImage;
 import static com.project.icecream.utils.GenerateSlugUtil.convertToSlug;
+import static com.project.icecream.utils.GetIdFromTokenHeader.getUserIdFromTokenHeader;
 import static com.project.icecream.utils.SaveImageBase64Util.saveBase64ImageToFile;
 
 @RestController
@@ -49,6 +53,8 @@ public class UsersController {
             Users loginUser = usersService.isEmailAndPasswordCorrect(user.getEmail(), user.getPassword());
             if (loginUser != null) {
                 if(loginUser.getUser_type().equals(Role.client.name())){
+                    //Them duong dan cho anh
+                    addHostUrlForImage(loginUser);
                     String token = JwtTokenUtil.generateToken(loginUser);
                     return ResponseEntity.ok().body(new UserLoginResponse(loginUser, token));
                 }
@@ -89,6 +95,8 @@ public class UsersController {
             Users loginUser = usersService.isEmailAndPasswordCorrect(user.getEmail(), user.getPassword());
             if (loginUser != null) {
                 if(loginUser.getUser_type().equals(Role.seller.name())){
+                    //Them duong dan cho anh
+                    addHostUrlForImage(loginUser);
                     String token = JwtTokenUtil.generateToken(loginUser);
                     return ResponseEntity.ok().body(new UserLoginResponse(loginUser, token));
                 }
@@ -128,6 +136,8 @@ public class UsersController {
             Users loginUser = usersService.isEmailAndPasswordCorrect(user.getEmail(), user.getPassword());
             if (loginUser != null) {
                 if(loginUser.getUser_type().equals(Role.admin.name())){
+                    //Them duong dan cho anh
+                    addHostUrlForImage(loginUser);
                     String token = JwtTokenUtil.generateToken(loginUser);
                     return ResponseEntity.ok().body(new UserLoginResponse(loginUser, token));
                 }
@@ -159,5 +169,29 @@ public class UsersController {
     public ResponseEntity<?> adminLogout() {
         SecurityContextHolder.clearContext();
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping({"/seller", "/admin", "/me"})
+    public ResponseEntity<?> getSelfInfo(@RequestHeader ("Authorization") String tokenHeader){
+        int userId = getUserIdFromTokenHeader(tokenHeader);
+        UserInfoResponse userRequire = new UserInfoResponse(usersService.findById(userId));
+        if (userRequire.getUser_type().equals(Role.client.name())){
+            usersService.countOrdersAndMessages(userRequire);
+        }
+        return ResponseEntity.ok().body(userRequire);
+    }
+
+    @PostMapping({"/admin/updateprofile", "/seller/updateprofile", "/updateprofile"})
+    public ResponseEntity<?> updateProfile(@RequestHeader ("Authorization") String tokenHeader, @RequestBody UserInfoRequest userNewInfo){
+        try {
+            Users userStored = usersService.updateUserProfile(tokenHeader, userNewInfo);
+            if(userStored != null) {
+                return ResponseEntity.ok().body(new UserInfoResponse(userStored));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Cập nhật thất bại");
+            }
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Cập nhật thất bại: " + ex.getMessage());
+        }
     }
 }

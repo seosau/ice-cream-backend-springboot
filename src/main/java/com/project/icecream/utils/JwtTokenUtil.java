@@ -18,6 +18,8 @@
 
 package com.project.icecream.utils;
 
+import com.project.icecream.dto.requests.UserInfoRequest;
+import com.project.icecream.dto.responses.UserInfoResponse;
 import com.project.icecream.models.Users;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -64,6 +66,24 @@ public class JwtTokenUtil {
         } catch (Exception e) {
             // Handle parsing or token validation errors
             return -1;
+        }
+    }
+    public static UserInfoRequest getUserInfoFromTokenHeader(String tokenHeader) {
+        try {
+            String token = tokenHeader.substring(7);
+            Claims claims = Jwts.parser()
+                    .setSigningKey(SECRET_KEY.getBytes())
+                    .parseClaimsJws(token)
+                    .getBody();
+            int id = Integer.parseInt(claims.get("id").toString());
+            String name = claims.get("name").toString();
+            String email = claims.get("email").toString();
+            String user_type = claims.get("user_type").toString();
+            UserInfoRequest userInToken = new UserInfoRequest(id, name, email, user_type);
+            return userInToken;
+        } catch (Exception e) {
+            // Handle parsing or token validation errors
+            return null;
         }
     }
 }
