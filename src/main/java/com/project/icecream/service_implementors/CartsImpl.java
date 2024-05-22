@@ -25,7 +25,7 @@ public class CartsImpl implements CartsService {
     private ProductsDAO productsDAO;
 
     @Override
-    public Carts addToCart(CartRequest requestBody) {
+    public List<CartsResponse> addToCart(CartRequest requestBody) {
         LocalDateTime currentTime = LocalDateTime.now();
         Carts cart = Carts.builder()
                 .userId(requestBody.getUserId())
@@ -34,24 +34,26 @@ public class CartsImpl implements CartsService {
                 .createdAt(currentTime)
                 .updatedAt(currentTime)
                 .build();
-        return cartsDAO.save(cart);
+        cartsDAO.save(cart);
+        return this.getCartsId(requestBody.getUserId());
     }
 
     @Override
-    public List<Carts> changeQuantity(int id, int quantity) {
+    public List<CartsResponse> changeQuantity(int id, int userId, CartRequest requestBody) {
         Optional<Carts> optionalCarts = cartsDAO.findById(id);
         if (optionalCarts.isPresent()) {
             Carts cart = optionalCarts.get();
-            cart.setQuantity(quantity);
+            cart.setQuantity(requestBody.getQuantity());
             cartsDAO.save(cart);
-            return cartsDAO.findAll();
+            return this.getCarts(userId);
         }
         return null;
     }
 
     @Override
-    public void deleteItem(int id) {
+    public List<CartsResponse> deleteItem(int id, int userId) {
         cartsDAO.deleteById(id);
+        return this.getCartsId(userId);
     }
 
     @Override
@@ -66,6 +68,7 @@ public class CartsImpl implements CartsService {
                 cartsResponses.add(CartsResponse.builder()
                         .id(c.getId())
                         .products(p)
+                        .quantity(c.getQuantity())
                         .build());
             }
         }

@@ -30,10 +30,9 @@ public class WishlistsController {
         List<WishlistsResponse> wishlist = wishlistsService.getWishlists(userId);
         return ResponseEntity.ok(wishlist);
     }
-    @DeleteMapping({"/wishlists/{id}"})
-    public ResponseEntity<?> deleteItem(@PathVariable int id) {
-        wishlistsService.deleteItem(id);
-        return ResponseEntity.ok("Xoa thanh cong");
+    @DeleteMapping({"/wishlists/{id}/{userId}"})
+    public ResponseEntity<?> deleteItem(@PathVariable int id, @PathVariable int userId) {
+        return ResponseEntity.ok(wishlistsService.deleteItem(id, userId));
     }
     @GetMapping({"/quantitywishlists/{userId}"})
     public ResponseEntity<?> getWishlistIds(@PathVariable int userId) {

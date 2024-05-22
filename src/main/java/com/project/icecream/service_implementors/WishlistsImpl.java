@@ -55,8 +55,9 @@ public class WishlistsImpl implements WishlistsService {
     }
 
     @Override
-    public void deleteItem(int id) {
+    public List<WishlistsResponse> deleteItem(int id, int userId) {
         wishlistsDAO.deleteById(id);
+        return this.getWishlistsId(userId);
     }
     @Override
     public List<WishlistsResponse> getWishlistsId(int userId) {

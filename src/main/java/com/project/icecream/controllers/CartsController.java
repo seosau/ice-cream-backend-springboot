@@ -17,8 +17,7 @@ public class CartsController {
     private CartsImpl cartsService;
     @PostMapping({"/cart"})
     public ResponseEntity<?> addToCarts(@RequestBody CartRequest requestBody) {
-        Carts cart = cartsService.addToCart(requestBody);
-        return ResponseEntity.ok(cart);
+        return ResponseEntity.ok(cartsService.addToCart(requestBody));
     }
     @GetMapping({"/cart/{userId}"})
     public ResponseEntity<?> getCarts(@PathVariable int userId) {
@@ -30,14 +29,12 @@ public class CartsController {
         List<CartsResponse> carts = cartsService.getCartsId(userId);
         return ResponseEntity.ok(carts);
     }
-    @DeleteMapping({"/cart/{id}"})
-    public ResponseEntity<?> deleteItem(@PathVariable int id) {
-        cartsService.deleteItem(id);
-        return ResponseEntity.ok("Xoa thanh cong");
+    @DeleteMapping({"/cart/{id}/{userId}"})
+    public ResponseEntity<?> deleteItem(@PathVariable int id, @PathVariable int userId) {
+        return ResponseEntity.ok(cartsService.deleteItem(id, userId));
     }
-    @PutMapping({"/cart/{id}"})
-    public ResponseEntity<?> deleteItem(@PathVariable int id, @RequestBody int quantity) {
-        List<Carts> carts = cartsService.changeQuantity(id, quantity);
-        return ResponseEntity.ok(carts);
+    @PutMapping({"/cart/{id}/{userId}"})
+    public ResponseEntity<?> changeQuantity(@PathVariable int id, @PathVariable int userId, @RequestBody CartRequest requestBody) {
+        return ResponseEntity.ok(cartsService.changeQuantity(id, userId, requestBody));
     }
 }

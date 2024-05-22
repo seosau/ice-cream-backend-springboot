@@ -10,9 +10,9 @@ import java.util.List;
 
 @Service
 public interface CartsService {
-    Carts addToCart(CartRequest requestBody);
-    List<Carts> changeQuantity(int id, int quantity);
-    void deleteItem(int id);
+    List<CartsResponse> addToCart(CartRequest requestBody);
+    List<CartsResponse> changeQuantity(int id, int userId, CartRequest requestBody);
+    List<CartsResponse> deleteItem(int id, int userId);
     List<CartsResponse> getCarts(int userId);
     List<CartsResponse> getCartsId(int userId);
 }

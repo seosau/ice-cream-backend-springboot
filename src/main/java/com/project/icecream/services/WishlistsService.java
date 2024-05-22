@@ -12,7 +12,7 @@ import java.util.List;
 @Service
 public interface WishlistsService {
     List<Wishlists> addToWishlists(WishlistRequest requestBody);
-    void deleteItem(int id);
+    List<WishlistsResponse> deleteItem(int id, int userId);
     List<WishlistsResponse> getWishlists(int userId);
     List<WishlistsResponse> getWishlistsId(int userId);
 }
