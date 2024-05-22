@@ -95,7 +95,6 @@ public class ProductsImpl implements ProductsService {
 
     public Products updateProduct(int id, ProductRequest requestBody) throws IOException {
         Optional<Products> optionalProduct = productsDAO.findById(id);
-        System.out.println(requestBody);
         LocalDateTime currentTime = LocalDateTime.now();
         if (optionalProduct.isPresent()) {
             Products product = optionalProduct.get();
