@@ -12,6 +12,7 @@ import java.util.List;
 public interface ProductsDAO extends JpaRepository<Products, Integer> {
     Page<Products> findByCategory(String category, Pageable pageable);
     Page<Products> findByStatus(String status, Pageable pageable);
+    List<Products> findByNameContaining(String searchValue);
     long countByCategory(String category);
     long countByStatus(String status);
 

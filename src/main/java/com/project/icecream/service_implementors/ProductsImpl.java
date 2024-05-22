@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static com.project.icecream.utils.GenerateSlugUtil.convertToSlug;
@@ -25,6 +26,18 @@ public class ProductsImpl implements ProductsService {
     @Autowired
     private ProductsDAO productsDAO;
 
+    @Override
+    public List<Products> getProductsByName(String searchValue) {
+        List<Products> products = productsDAO.findByNameContaining(searchValue);
+
+        for (Products product : products) {
+            String imageUrl = "http://localhost:8080/api/" + product.getImage();
+            product.setImage(imageUrl);
+        }
+        return products;
+    }
+
+    @Override
     public Products addProduct(ProductRequest requestBody) throws IOException {
         LocalDateTime currentTime = LocalDateTime.now(); // Lấy thời gian hiện tại
         Products product = Products.builder()
@@ -42,7 +55,7 @@ public class ProductsImpl implements ProductsService {
         // Lưu sản phẩm vào cơ sở dữ liệu
         return productsDAO.save(product);
     }
-
+    @Override
     public Page<Products> getAllProducts(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Products> productsPage = productsDAO.findAll(pageable);
@@ -53,7 +66,7 @@ public class ProductsImpl implements ProductsService {
         }
         return productsPage;
     }
-
+    @Override
     public Page<Products> getFilterProducts(int page, String sortBy, String order) {
         Pageable pageable;
         Page<Products> productsPageFilter;
@@ -86,13 +99,13 @@ public class ProductsImpl implements ProductsService {
         return productsPageFilter;
     }
 
-
+    @Override
     public Optional<Products> getProductById(int id) {
         Optional<Products> product = productsDAO.findById(id);
         product.ifPresent(p -> p.setImage("http://localhost:8080/api/" + p.getImage()));
         return product;
     }
-
+    @Override
     public Products updateProduct(int id, ProductRequest requestBody) throws IOException {
         Optional<Products> optionalProduct = productsDAO.findById(id);
         LocalDateTime currentTime = LocalDateTime.now();
@@ -111,7 +124,7 @@ public class ProductsImpl implements ProductsService {
         }
         return null;
     }
-
+    @Override
     public void deleteProduct(int id) {
         productsDAO.deleteById(id);
     }

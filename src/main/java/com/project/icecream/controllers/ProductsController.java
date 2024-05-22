@@ -28,15 +28,21 @@ public class ProductsController {
     @Autowired
     private ProductsImpl productsService;
 
-    @GetMapping({"/menu", "/seller/product", "/admin/product"})
-    public ResponseEntity<?> getAllProducts(@RequestParam(value = "page", defaultValue = "1") int page) {
-        Page<Products> products = productsService.getAllProducts(page, 12);
+    @GetMapping({"/searchproduct/{searchValue}"})
+    public ResponseEntity<?> getAllProducts(@PathVariable String searchValue) {
+        List<Products> products = productsService.getProductsByName(searchValue);
         return ResponseEntity.ok(products);
     }
 
     @GetMapping({"/viewproduct", "/seller/viewproduct", "/admin/viewproduct"})
-    public ResponseEntity<?> getFilterProducts(@RequestParam(value = "page", defaultValue = "1") int page, @RequestParam(value = "sortBy") String sortBy, @RequestParam(value = "order") String order) {
+    public ResponseEntity<?> getFilterProducts(@RequestParam(value = "page", defaultValue = "1") int page, @RequestParam(value = "sortBy", defaultValue = "id") String sortBy, @RequestParam(value = "order", defaultValue = "ASC") String order) {
         Page<Products> products = productsService.getFilterProducts(page, sortBy, order);
+        return ResponseEntity.ok(products);
+    }
+
+    @GetMapping({"/seller/product", "/admin/product"})
+    public ResponseEntity<?> getFilterProducts(@RequestParam(value = "page", defaultValue = "1") int page) {
+        Page<Products> products = productsService.getAllProducts(page, 12);
         return ResponseEntity.ok(products);
     }
 
