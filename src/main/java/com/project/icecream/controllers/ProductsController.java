@@ -40,7 +40,7 @@ public class ProductsController {
         return ResponseEntity.ok(products);
     }
 
-    @GetMapping({"/seller/product", "/admin/product"})
+    @GetMapping({"/menu", "/seller/product", "/admin/product"})
     public ResponseEntity<?> getFilterProducts(@RequestParam(value = "page", defaultValue = "1") int page) {
         Page<Products> products = productsService.getAllProducts(page, 12);
         return ResponseEntity.ok(products);
