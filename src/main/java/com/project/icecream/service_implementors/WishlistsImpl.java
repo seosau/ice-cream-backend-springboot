@@ -51,7 +51,7 @@ public class WishlistsImpl implements WishlistsService {
                 .updatedAt(currentTime)
                 .build();
         wishlistsDAO.save(wishlists);
-        return wishlistsDAO.findAll();
+        return wishlistsDAO.findByUserId(requestBody.getUserId());
     }
 
     @Override
