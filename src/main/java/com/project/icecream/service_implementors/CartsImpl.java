@@ -69,6 +69,7 @@ public class CartsImpl implements CartsService {
                         .id(c.getId())
                         .products(p)
                         .quantity(c.getQuantity())
+                        .productId(c.getProductId())
                         .build());
             }
         }

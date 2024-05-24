@@ -18,4 +18,7 @@ public class AddHostUrl {
         user.setImage(HOST_URL + user.getImage());
         return user;
     }
+    public static String addHostUrlForImage(String imagePath) {
+        return HOST_URL + imagePath;
+    }
 }
