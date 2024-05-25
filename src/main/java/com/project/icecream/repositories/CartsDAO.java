@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface CartsDAO extends JpaRepository<Carts, Integer> {
     List<Carts> findByUserId(int userId);
+    List<Carts> findByProductId(int productId);
 }

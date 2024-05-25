@@ -16,13 +16,13 @@ public class OrdersController {
     @Autowired
     private OrdersImpl ordersService;
 
-    @GetMapping({"/seller/order", "/admin/order"})
+    @GetMapping({"/order", "/seller/order", "/admin/order"})
     public ResponseEntity<?> getOrders(@RequestParam(value = "status", defaultValue = "") String status, @RequestParam(value = "paymentStatus", defaultValue = "") String paymentStatus) {
         List<OrdersResponse> ordersList = ordersService.getOrders(status, paymentStatus);
         return ResponseEntity.ok(ordersList);
     }
 
-    @PutMapping({"/seller/order/{id}", "/admin/order/{id}"})
+    @PutMapping({"/order/{id}","/seller/order/{id}", "/admin/order/{id}"})
     public ResponseEntity<?> updatePaymentStatus(@PathVariable int id, @RequestBody OrdersRequest requestBody) {
         OrdersResponse order = ordersService.changeStatus(id, requestBody);
         return ResponseEntity.ok(order);
