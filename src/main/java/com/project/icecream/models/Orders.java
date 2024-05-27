@@ -1,5 +1,7 @@
 package com.project.icecream.models;
 
+import com.project.icecream.dto.requests.PlaceOrderRequest;
+import com.project.icecream.dto.responses.CartsResponse;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +23,8 @@ public class Orders {
     private int id;
     @Column(name = "user_id")
     private int userId;
+    @Column(name = "seller_id")
+    private int sellerID;
     @Column(name = "product_id")
     private int productId;
     @Column(name = "name")
@@ -45,4 +49,23 @@ public class Orders {
     private LocalDateTime createdAt;
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public Orders (PlaceOrderRequest placeOrderRequest, CartsResponse productRequest){
+        this.userId = placeOrderRequest.getUser_id();
+        this.phoneNumber = placeOrderRequest.getPhone_number();
+        this.email = placeOrderRequest.getEmail();
+        this.address = placeOrderRequest.getAddress();
+        this.paymentMethod = placeOrderRequest.getPayment_method();
+        this.name = placeOrderRequest.getUser_name();
+
+        this.sellerID = productRequest.getProducts().getSellerId();
+        this.productId = productRequest.getProductId();
+        this.price = productRequest.getProducts().getPrice();
+        this.quantity = productRequest.getQuantity();
+        this.status = "đang xử lý";
+        this.paymentStatus = "đang chờ";
+
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
 }
