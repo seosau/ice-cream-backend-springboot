@@ -218,7 +218,7 @@ public class OrdersImpl implements OrdersService {
         Optional<Orders> orderStored = ordersDAO.findById(orderId);
         if (orderStored.isPresent()) {
             Orders order = orderStored.get();
-            order.setStatus("canceled");
+            order.setStatus("đã hủy");
             ordersDAO.save(order);
             return true;
         }

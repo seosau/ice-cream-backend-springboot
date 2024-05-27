@@ -46,7 +46,7 @@ public class OrdersController {
         }
     }
 
-    @GetMapping("/order")
+    @GetMapping("/getorder")
     public ResponseEntity<?> getOrder(@RequestHeader ("Authorization") String tokenHeader) {
         return ResponseEntity.ok().body(ordersService.getClientOrder(tokenHeader));
     }
@@ -56,7 +56,7 @@ public class OrdersController {
         return ResponseEntity.ok().body(ordersService.getOrderByOrderId(id));
     }
 
-    @PutMapping("/order/{id}")
+    @PutMapping("/reorder/{id}")
     public ResponseEntity<?> rePlaceOrder(@PathVariable int id, @RequestBody PlaceOrderRequest placeOrderRequest) {
         try {
             String message = ordersService.rePlaceOrder(id, placeOrderRequest);

@@ -62,8 +62,8 @@ public class Orders {
         this.productId = productRequest.getProductId();
         this.price = productRequest.getProducts().getPrice();
         this.quantity = productRequest.getQuantity();
-        this.status = "in progress";
-        this.paymentStatus = "in progress";
+        this.status = "đang xử lý";
+        this.paymentStatus = "đang chờ";
 
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
