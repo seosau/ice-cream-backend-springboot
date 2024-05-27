@@ -11,4 +11,5 @@ public interface OrdersDAO extends JpaRepository<Orders, Integer> {
     long countByStatusAndPaymentStatus(String status, String paymentStatus);
     List<Orders> findByStatusAndPaymentStatus(String status, String paymentStatus);
     public List<Orders> findByUserId(int userId);
+    public List<Orders> findByProductId(int productId);
 }

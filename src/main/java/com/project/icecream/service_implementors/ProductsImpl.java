@@ -1,10 +1,16 @@
 package com.project.icecream.service_implementors;
 
 import com.project.icecream.dto.requests.ProductRequest;
+import com.project.icecream.models.Carts;
 import com.project.icecream.models.Orders;
 import com.project.icecream.models.Products;
+import com.project.icecream.models.Wishlists;
+import com.project.icecream.repositories.CartsDAO;
+import com.project.icecream.repositories.OrdersDAO;
 import com.project.icecream.repositories.ProductsDAO;
+import com.project.icecream.repositories.WishlistsDAO;
 import com.project.icecream.services.ProductsService;
+import com.project.icecream.websockets.ProductWebSocket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +31,14 @@ import static com.project.icecream.utils.SaveImageBase64Util.saveBase64ImageToFi
 public class ProductsImpl implements ProductsService {
     @Autowired
     private ProductsDAO productsDAO;
+    @Autowired
+    private OrdersDAO ordersDAO;
+    @Autowired
+    private CartsDAO cartsDAO;
+    @Autowired
+    private WishlistsDAO wishlistsDAO;
+    @Autowired
+    private ProductWebSocket productWebSocketController;
 
     @Override
     public List<Products> getProductsByName(String searchValue) {
@@ -55,6 +69,7 @@ public class ProductsImpl implements ProductsService {
         // Lưu sản phẩm vào cơ sở dữ liệu
         return productsDAO.save(product);
     }
+
     @Override
     public Page<Products> getAllProducts(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -66,6 +81,7 @@ public class ProductsImpl implements ProductsService {
         }
         return productsPage;
     }
+
     @Override
     public Page<Products> getFilterProducts(int page, String sortBy, String order) {
         Pageable pageable;
@@ -105,6 +121,7 @@ public class ProductsImpl implements ProductsService {
         product.ifPresent(p -> p.setImage("http://localhost:8080/api/" + p.getImage()));
         return product;
     }
+
     @Override
     public Products updateProduct(int id, ProductRequest requestBody) throws IOException {
         Optional<Products> optionalProduct = productsDAO.findById(id);
@@ -114,18 +131,39 @@ public class ProductsImpl implements ProductsService {
             product.setName(requestBody.getName());
             product.setCategory(requestBody.getCategory());
             product.setStatus(requestBody.getStatus());
-            product.setImage(saveBase64ImageToFile(requestBody.getImage(), convertToSlug(requestBody.getName())));
+            if (requestBody.getImage() != null)
+                product.setImage(saveBase64ImageToFile(requestBody.getImage(), convertToSlug(requestBody.getName())));
             product.setStock(requestBody.getStock());
             product.setPrice(requestBody.getPrice());
             product.setSellerId(requestBody.getSellerId());
             product.setProductDetail(requestBody.getProductDetail());
             product.setUpdatedAt(currentTime);
-            return productsDAO.save(product);
+            productsDAO.save(product);
+            Optional<Products> updatedProduct = productsDAO.findById(id);
+            updatedProduct.ifPresent(p -> p.setImage("http://localhost:8080/api/" + p.getImage()));
+
+            // Gửi thông báo WebSocket
+            productWebSocketController.sendProductUpdate(updatedProduct.get());
+
+            return updatedProduct.get();
         }
         return null;
     }
+
     @Override
     public void deleteProduct(int id) {
+        List<Orders> orders = ordersDAO.findByProductId(id);
+        List<Carts> carts = cartsDAO.findByProductId(id);
+        List<Wishlists> wishlists = wishlistsDAO.findByProductId(id);
+        for (Orders order : orders) {
+            ordersDAO.deleteById(order.getId());
+        }
+        for (Carts cart : carts) {
+            ordersDAO.deleteById(cart.getId());
+        }
+        for (Wishlists wishlist : wishlists) {
+            ordersDAO.deleteById(wishlist.getId());
+        }
         productsDAO.deleteById(id);
     }
 
