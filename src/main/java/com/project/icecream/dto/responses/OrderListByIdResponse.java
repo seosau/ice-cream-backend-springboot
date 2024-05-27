@@ -9,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderListByIdResponse {
+    private int id;
     private int productId;
     private int quantity;
     private Products products;

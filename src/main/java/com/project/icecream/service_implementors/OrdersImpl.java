@@ -115,6 +115,20 @@ public class OrdersImpl implements OrdersService {
     }
 
     @Override
+    public String rePlaceOrder (int oderId, PlaceOrderRequest placeOrderRequest){
+        for (CartsResponse productRequest : placeOrderRequest.getProducts()) {
+            Orders orderRequesting = new Orders(placeOrderRequest,productRequest);
+            orderRequesting.setId(oderId);
+            ordersDAO.save(orderRequesting);
+//            Optional<Orders> orderStored = ordersDAO.findById(oderId);
+//            if (orderStored.isPresent()) {
+//
+//            }
+        }
+        return "Đặt lại thành công";
+    }
+
+    @Override
     public OrderListResponse getClientOrder (String tokenHeader) {
         List<Orders> ordersList = ordersDAO.findByUserId(getUserIdFromTokenHeader(tokenHeader));
         List<OrdersResponse> ordersResponseList = new ArrayList<>();
@@ -148,11 +162,66 @@ public class OrdersImpl implements OrdersService {
         if (order.isPresent()){
             Optional<Products> product = productsDAO.findById(order.get().getProductId());
             if(product.isPresent()) {
+                Products productResponse = product.get();
+                productResponse.setImage(addHostUrlForImage(productResponse.getImage()));
                 List<OrderListByIdResponse> orderListByIdResponses = new ArrayList<>();
-                orderListByIdResponses.add(new OrderListByIdResponse(order.get().getProductId(), order.get().getQuantity(), product.get()));
+                orderListByIdResponses.add(new OrderListByIdResponse(-1,order.get().getProductId(), order.get().getQuantity(), productResponse));
                 return orderListByIdResponses;
             }
         }
         return null;
+    }
+
+    @Override
+    public List<OrderListByIdResponse> getOrderByProductId (int productId) {
+        Optional<Products> product = productsDAO.findById(productId);
+        if (product.isPresent()){
+            Products productResponse = product.get();
+            productResponse.setImage(addHostUrlForImage(productResponse.getImage()));
+            List<OrderListByIdResponse> orderListByIdResponses = new ArrayList<>();
+            orderListByIdResponses.add(new OrderListByIdResponse(-1,productResponse.getId(), 1, productResponse));
+            return orderListByIdResponses;
+        }
+        return null;
+    }
+
+    @Override
+    public OrdersResponse getOrderDetailById (int orderId){
+        Optional<Orders> orderStored = ordersDAO.findById(orderId);
+        if (orderStored.isPresent()){
+            Optional<Products> productRef = productsDAO.findById(orderStored.get().getProductId());
+            if(productRef.isPresent()) {
+                Products productRes = productRef.get();
+                productRes.setImage(addHostUrlForImage(productRes.getImage()));
+                return OrdersResponse.builder()
+                        .id(orderStored.get().getId())
+                        .productName(productRes.getName())
+                        .userName(orderStored.get().getName())
+                        .quantity(orderStored.get().getQuantity())
+                        .price(orderStored.get().getPrice())
+                        .date(orderStored.get().getCreatedAt())
+                        .phoneNumber(orderStored.get().getPhoneNumber())
+                        .email(orderStored.get().getEmail())
+                        .paymentMethod(orderStored.get().getPaymentMethod())
+                        .address(orderStored.get().getAddress())
+                        .status(orderStored.get().getStatus())
+                        .paymentStatus(orderStored.get().getPaymentStatus())
+                        .imageUrl(productRes.getImage())
+                        .build();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public boolean cancelOrder (int orderId) {
+        Optional<Orders> orderStored = ordersDAO.findById(orderId);
+        if (orderStored.isPresent()) {
+            Orders order = orderStored.get();
+            order.setStatus("canceled");
+            ordersDAO.save(order);
+            return true;
+        }
+        return false;
     }
 }

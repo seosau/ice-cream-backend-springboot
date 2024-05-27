@@ -55,4 +55,36 @@ public class OrdersController {
     public ResponseEntity<?> getDataFromOrder(@PathVariable int id) {
         return ResponseEntity.ok().body(ordersService.getOrderByOrderId(id));
     }
+
+    @PutMapping("/order/{id}")
+    public ResponseEntity<?> rePlaceOrder(@PathVariable int id, @RequestBody PlaceOrderRequest placeOrderRequest) {
+        try {
+            String message = ordersService.rePlaceOrder(id, placeOrderRequest);
+            return ResponseEntity.ok().body(message);
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Đặt hàng thất bại: " + ex.getMessage());
+        }
+    }
+
+    @GetMapping("/frommenu/{id}")
+    public ResponseEntity<?> getDataFromMenu(@PathVariable int id) {
+        return ResponseEntity.ok().body(ordersService.getOrderByProductId(id));
+    }
+
+    @GetMapping("/orderdetail/{id}")
+    public ResponseEntity<?> getOrderDetail(@PathVariable int id) {
+        return ResponseEntity.ok().body(ordersService.getOrderDetailById(id));
+    }
+
+    @PutMapping("/cancelorder/{orderId}")
+    public ResponseEntity<?> rePlaceOrder(@PathVariable int orderId) {
+        try {
+            if (ordersService.cancelOrder(orderId)) {
+                return ResponseEntity.ok().body("Hủy đơn hàng thành công");
+            }
+            return ResponseEntity.ok().body("Hủy không thành công");
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hủy không thành công: " + ex.getMessage());
+        }
+    }
 }

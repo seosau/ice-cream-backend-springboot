@@ -17,4 +17,8 @@ public interface OrdersService {
     void placeOrder (PlaceOrderRequest placeOrderRequest);
     OrderListResponse getClientOrder (String tokenHeader);
     List<OrderListByIdResponse> getOrderByOrderId(int orderId);
+    String rePlaceOrder (int oderId, PlaceOrderRequest placeOrderRequest);
+    List<OrderListByIdResponse> getOrderByProductId (int productId);
+    OrdersResponse getOrderDetailById (int orderId);
+    boolean cancelOrder (int orderId);
 }
