@@ -3,6 +3,7 @@ package com.project.icecream.service_implementors;
 import com.project.icecream.dto.requests.OrdersRequest;
 import com.project.icecream.dto.requests.PlaceOrderRequest;
 import com.project.icecream.dto.responses.CartsResponse;
+import com.project.icecream.dto.responses.OrderListByIdResponse;
 import com.project.icecream.dto.responses.OrderListResponse;
 import com.project.icecream.dto.responses.OrdersResponse;
 import com.project.icecream.models.Users;
@@ -139,5 +140,19 @@ public class OrdersImpl implements OrdersService {
             }
         }
         return new OrderListResponse(ordersResponseList);
+    }
+
+    @Override
+    public List<OrderListByIdResponse> getOrderByOrderId(int orderId){
+        Optional<Orders> order = ordersDAO.findById(orderId);
+        if (order.isPresent()){
+            Optional<Products> product = productsDAO.findById(order.get().getProductId());
+            if(product.isPresent()) {
+                List<OrderListByIdResponse> orderListByIdResponses = new ArrayList<>();
+                orderListByIdResponses.add(new OrderListByIdResponse(order.get().getProductId(), order.get().getQuantity(), product.get()));
+                return orderListByIdResponses;
+            }
+        }
+        return null;
     }
 }

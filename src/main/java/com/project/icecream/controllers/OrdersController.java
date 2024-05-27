@@ -50,4 +50,9 @@ public class OrdersController {
     public ResponseEntity<?> getOrder(@RequestHeader ("Authorization") String tokenHeader) {
         return ResponseEntity.ok().body(ordersService.getClientOrder(tokenHeader));
     }
+
+    @GetMapping("/order/{id}")
+    public ResponseEntity<?> getDataFromOrder(@PathVariable int id) {
+        return ResponseEntity.ok().body(ordersService.getOrderByOrderId(id));
+    }
 }
