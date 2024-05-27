@@ -66,8 +66,14 @@ public class ProductsImpl implements ProductsService {
                 .createdAt(currentTime)
                 .updatedAt(currentTime)
                 .build();
-        // Lưu sản phẩm vào cơ sở dữ liệu
-        return productsDAO.save(product);
+        Products savedProduct = productsDAO.save(product);
+
+        // Cập nhật đường dẫn hình ảnh đầy đủ sau khi lưu
+        savedProduct.setImage("http://localhost:8080/api/" + savedProduct.getImage());
+        // Gửi thông báo WebSocket
+        productWebSocketController.sendProductUpdate(savedProduct);
+
+        return savedProduct;
     }
 
     @Override
@@ -164,6 +170,7 @@ public class ProductsImpl implements ProductsService {
         for (Wishlists wishlist : wishlists) {
             ordersDAO.deleteById(wishlist.getId());
         }
+        productWebSocketController.sendProductDeletion(id);
         productsDAO.deleteById(id);
     }
 

@@ -15,7 +15,10 @@ import com.project.icecream.repositories.UserDAO;
 import com.project.icecream.repositories.OrdersDAO;
 import com.project.icecream.repositories.ProductsDAO;
 import com.project.icecream.services.OrdersService;
+import com.project.icecream.websockets.OrderWebSocket;
+import com.project.icecream.websockets.ProductWebSocket;
 import org.hibernate.query.Order;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +43,8 @@ public class OrdersImpl implements OrdersService {
 
     @Autowired
     private CartsDAO cartsDAO;
+    @Autowired
+    private OrderWebSocket orderWebSocketController;
 
     public List<OrdersResponse> getOrders(String status, String paymentStatus) {
         List<Orders> orders = null;
@@ -84,6 +89,9 @@ public class OrdersImpl implements OrdersService {
             order.setStatus(requestBody.getStatus());
             ordersDAO.save(order);
 
+            Optional<Orders> updatedOrder = ordersDAO.findById(id);
+            orderWebSocketController.sendOrderUpdate(updatedOrder.get());
+
             return OrdersResponse.builder()
                     .paymentStatus(order.getPaymentStatus())
                     .status(order.getStatus())
@@ -93,8 +101,16 @@ public class OrdersImpl implements OrdersService {
     }
 
     public void deleteOrder(int id) {
+        Optional<Orders> optionalOrder = ordersDAO.findById(id);
 
-        ordersDAO.deleteById(id);
+        if (optionalOrder.isPresent()) {
+            Orders order = optionalOrder.get();
+            ordersDAO.deleteById(id);
+            orderWebSocketController.sendOrderUpdate(order);  // Notify about the deletion
+        } else {
+            // Handle the case where the order is not found
+            LoggerFactory.getLogger(OrdersService.class).error("Order not found with id: " + id);
+        }
     }
 
     @Override
@@ -103,12 +119,14 @@ public class OrdersImpl implements OrdersService {
         for (CartsResponse productRequest : placeOrderRequest.getProducts()){
             Orders orderStore = new Orders(placeOrderRequest, productRequest);
             ordersDAO.save(orderStore);
+            orderWebSocketController.sendOrderUpdate(orderStore);
             //Giảm số lượng tồn kho
             Optional<Products> inDBProduct = productsDAO.findById(productRequest.getId());
             if(inDBProduct.isPresent()){
                 Products product = inDBProduct.get();
                 product.setStock(product.getStock() - productRequest.getQuantity());
                 productsDAO.save(product);
+
             }
         }
         cartsDAO.deleteAllByUserId(placeOrderRequest.getUser_id());
@@ -120,6 +138,8 @@ public class OrdersImpl implements OrdersService {
             Orders orderRequesting = new Orders(placeOrderRequest,productRequest);
             orderRequesting.setId(oderId);
             ordersDAO.save(orderRequesting);
+            Optional<Orders> updatedOrder = ordersDAO.findById(oderId);
+            orderWebSocketController.sendOrderUpdate(updatedOrder.get());
 //            Optional<Orders> orderStored = ordersDAO.findById(oderId);
 //            if (orderStored.isPresent()) {
 //
@@ -165,7 +185,7 @@ public class OrdersImpl implements OrdersService {
                 Products productResponse = product.get();
                 productResponse.setImage(addHostUrlForImage(productResponse.getImage()));
                 List<OrderListByIdResponse> orderListByIdResponses = new ArrayList<>();
-                orderListByIdResponses.add(new OrderListByIdResponse(-1,order.get().getProductId(), order.get().getQuantity(), productResponse));
+                orderListByIdResponses.add(new OrderListByIdResponse(orderId,order.get().getProductId(), order.get().getQuantity(), productResponse));
                 return orderListByIdResponses;
             }
         }
@@ -220,6 +240,8 @@ public class OrdersImpl implements OrdersService {
             Orders order = orderStored.get();
             order.setStatus("đã hủy");
             ordersDAO.save(order);
+            Optional<Orders> updatedOrder = ordersDAO.findById(orderId);
+            orderWebSocketController.sendOrderUpdate(updatedOrder.get());
             return true;
         }
         return false;

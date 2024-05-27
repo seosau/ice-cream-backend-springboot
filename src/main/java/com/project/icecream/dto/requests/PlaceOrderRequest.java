@@ -10,6 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Data
 public class PlaceOrderRequest {
     private int user_id;
     private String user_name;
