@@ -66,10 +66,17 @@ public class UsersImpl implements UsersService {
     }
 
     public List<UsersResponse> getAllSellerByAdmin() {
-        List<Users> sellersList = userDAO.findAll();
+        List<Users> users = userDAO.findAll();
+        List<Users> sellersList = new ArrayList<>();
+        for (Users user : users) {
+            if (user.getUserType().equals("seller")) {
+                sellersList.add(user);
+            }
+        }
         List<UsersResponse> usersList = new ArrayList<>();
 
         for (Users seller : sellersList) {
+            addHostUrlForImage(seller);
             UsersResponse user = UsersResponse.builder()
                     .users(seller)
                     .build();
@@ -79,10 +86,17 @@ public class UsersImpl implements UsersService {
     }
 
     public List<UsersResponse> getAllUserByAdmin() {
-        List<Users> customersList = userDAO.findAll();
+        List<Users> users = userDAO.findAll();
+        List<Users> customersList = new ArrayList<>();
+        for (Users user : users) {
+            if (user.getUserType().equals("client")) {
+                customersList.add(user);
+            }
+        }
         List<UsersResponse> usersList = new ArrayList<>();
 
         for (Users cus : customersList) {
+            addHostUrlForImage(cus);
             int orderQuantity = ordersDAO.countByUserId(cus.getId());
             UsersResponse user = UsersResponse.builder()
                     .users(cus)

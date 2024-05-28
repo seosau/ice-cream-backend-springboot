@@ -1,10 +1,7 @@
 package com.project.icecream.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Date;
 
@@ -13,17 +10,24 @@ import java.util.Date;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@Data
 //@MappedSuperclass
 @Table(name = "users")
 public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(name = "name")
     private String name;
+    @Column(name = "email")
     private String email;
+    @Column(name = "password")
     private String password;
+    @Column(name = "image")
     private String image;
-    private String user_type;
+    @Column(name = "user_type")
+    private String userType;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", nullable = false, updatable = false)

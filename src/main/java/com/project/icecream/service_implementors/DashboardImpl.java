@@ -33,10 +33,10 @@ public class DashboardImpl implements DashboardService {
         return productsDAO.countByStatus("chưa bán");
     }
     public long getTotalUserAccounts() {
-        return userDAO.count();
+        return userDAO.countByUserType("client");
     }
     public long getTotalSellerAccounts() {
-        return userDAO.count();
+        return userDAO.countByUserType("seller");
     }
     public long getTotalOrderPlaced() {
         return ordersDAO.count();

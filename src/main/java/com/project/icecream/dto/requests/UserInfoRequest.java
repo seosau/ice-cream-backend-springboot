@@ -25,7 +25,7 @@ public class UserInfoRequest {
         this.name = user.getName();
         this.email = user.getEmail();
         this.image = user.getImage();
-        this.user_type = user.getUser_type();
+        this.user_type = user.getUserType();
     }
     public UserInfoRequest (int id, String name, String email, String user_type){
         this.id = id;

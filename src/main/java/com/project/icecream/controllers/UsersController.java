@@ -52,7 +52,7 @@ public class UsersController {
         try {
             Users loginUser = usersService.isEmailAndPasswordCorrect(user.getEmail(), user.getPassword());
             if (loginUser != null) {
-                if(loginUser.getUser_type().equals(Role.client.name())){
+                if(loginUser.getUserType().equals(Role.client.name())){
                     //Them duong dan cho anh
                     addHostUrlForImage(loginUser);
                     String token = JwtTokenUtil.generateToken(loginUser);
@@ -74,7 +74,7 @@ public class UsersController {
                 return ResponseEntity.badRequest().body("Email này đã được đăng ký rồi");
             }
             user.setImage(saveBase64ImageToFile(user.getImage(), convertToSlug(user.getEmail())));
-            user.setUser_type(Role.client.name());
+            user.setUserType(Role.client.name());
             usersService.saveUser(user);
             return ResponseEntity.ok().body("Đăng ký thành công");
         } catch (Exception ex) {
@@ -94,7 +94,7 @@ public class UsersController {
         try {
             Users loginUser = usersService.isEmailAndPasswordCorrect(user.getEmail(), user.getPassword());
             if (loginUser != null) {
-                if(loginUser.getUser_type().equals(Role.seller.name())){
+                if(loginUser.getUserType().equals(Role.seller.name())){
                     //Them duong dan cho anh
                     addHostUrlForImage(loginUser);
                     String token = JwtTokenUtil.generateToken(loginUser);
@@ -116,7 +116,7 @@ public class UsersController {
                 return ResponseEntity.badRequest().body("Email này đã được đăng ký rồi");
             }
             user.setImage(saveBase64ImageToFile(user.getImage(), convertToSlug(user.getEmail())));
-            user.setUser_type(Role.seller.name());
+            user.setUserType(Role.seller.name());
             usersService.saveUser(user);
             return ResponseEntity.ok().body("Đăng ký thành công");
         } catch (Exception ex) {
@@ -135,7 +135,7 @@ public class UsersController {
         try {
             Users loginUser = usersService.isEmailAndPasswordCorrect(user.getEmail(), user.getPassword());
             if (loginUser != null) {
-                if(loginUser.getUser_type().equals(Role.admin.name())){
+                if(loginUser.getUserType().equals(Role.admin.name())){
                     //Them duong dan cho anh
                     addHostUrlForImage(loginUser);
                     String token = JwtTokenUtil.generateToken(loginUser);
@@ -157,7 +157,7 @@ public class UsersController {
                 return ResponseEntity.badRequest().body("Email này đã được đăng ký rồi");
             }
             user.setImage(saveBase64ImageToFile(user.getImage(), convertToSlug(user.getEmail())));
-            user.setUser_type(Role.admin.name());
+            user.setUserType(Role.admin.name());
             usersService.saveUser(user);
             return ResponseEntity.ok().body("Đăng ký thành công");
         } catch (Exception ex) {

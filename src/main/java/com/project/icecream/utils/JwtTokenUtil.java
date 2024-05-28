@@ -44,7 +44,7 @@ public class JwtTokenUtil {
                 .claim("id", user.getId())
                 .claim("name", user.getName())
                 .claim("email", user.getEmail())
-                .claim("user_type", user.getUser_type())
+                .claim("user_type", user.getUserType())
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()), SignatureAlgorithm.HS512)
