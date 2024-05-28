@@ -17,4 +17,9 @@ public class OrderWebSocket {
         messagingTemplate.convertAndSend("/topic/orderUpdates", order);
         System.out.println(order);
     }
+    @MessageMapping("/deleteOrder")
+    public void sendOrderDelete(int id) {
+        messagingTemplate.convertAndSend("/topic/orderDelete", id);
+        System.out.println(id);
+    }
 }

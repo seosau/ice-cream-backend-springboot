@@ -104,9 +104,8 @@ public class OrdersImpl implements OrdersService {
         Optional<Orders> optionalOrder = ordersDAO.findById(id);
 
         if (optionalOrder.isPresent()) {
-            Orders order = optionalOrder.get();
             ordersDAO.deleteById(id);
-            orderWebSocketController.sendOrderUpdate(order);  // Notify about the deletion
+            orderWebSocketController.sendOrderDelete(id);  // Notify about the deletion
         } else {
             // Handle the case where the order is not found
             LoggerFactory.getLogger(OrdersService.class).error("Order not found with id: " + id);
